@@ -17,21 +17,29 @@ impdp () {
 	DUMP_NAME=${DUMP_FILE%.dmp} 
 	cat > /tmp/impdp.sql << EOL
 -- Impdp User
-CREATE USER IMPDP IDENTIFIED BY IMPDP;
-ALTER USER IMPDP ACCOUNT UNLOCK;
-GRANT dba TO IMPDP WITH ADMIN OPTION;
+-- 1. 创建用户，设置用户表空间及其余信息
+
 -- New Scheme User
-create or replace directory IMPDP as '/docker-entrypoint-initdb.d/';
-create tablespace $DUMP_NAME datafile '/u01/app/oracle/oradata/$DUMP_NAME.dbf' size 1000M autoextend on next 100M maxsize unlimited;
-create user $DUMP_NAME identified by $DUMP_NAME default tablespace $DUMP_NAME;
-alter user $DUMP_NAME quota unlimited on $DUMP_NAME;
-alter user $DUMP_NAME default role all;
-grant connect, resource to $DUMP_NAME;
+--创建用户并且设置用户密码
+create user ${DUMP_NAME} identified by ${DUMP_NAME};
+--授予DBA角色：connect连接角色，resource可以操作其它表空间权限，dba系统权限，谨慎授权
+grant dba,connect,resource to ${DUMP_NAME};
+--授予导入导出数据库权限
+grant imp_full_database,exp_full_database to ${DUMP_NAME};
+--创建表空间，1g左右，上线之前可以测试设置多少合适
+CREATE TABLESPACE ${DUMP_NAME} DATAFILE '/u01/app/oracle/oradata/XE/${DUMP_NAME}.dbf' SIZE 1000M EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO;
+--创建临时表,建议大点，几百M，上线之前可以测试设置多少合适
+CREATE TEMPORARY TABLESPACE ${DUMP_NAME}_temp TEMPFILE '/u01/app/oracle/oradata/XE/${DUMP_NAME}_temp.dbf' SIZE 500M;
+--为用户分配表空间和临时表空间
+alter user ${DUMP_NAME} default tablespace ${DUMP_NAME}_ts temporary tablespace ${DUMP_NAME}_temp;
+--设置表空间自动增长，表空间大小就是文件大小，一个文件大约30G，可以增加文件
+ALTER DATABASE DATAFILE '/u01/app/oracle/oradata/XE/${DUMP_NAME}_ts.dbf' AUTOEXTEND ON NEXT 200M MAXSIZE UNLIMITED;
+
 exit;
 EOL
 
 	su oracle -c "NLS_LANG=.$CHARACTER_SET $ORACLE_HOME/bin/sqlplus -S / as sysdba @/tmp/impdp.sql"
-	su oracle -c "NLS_LANG=.$CHARACTER_SET $ORACLE_HOME/bin/impdp IMPDP/IMPDP directory=IMPDP dumpfile=$DUMP_FILE $IMPDP_OPTIONS nologfile=y"
+	su oracle -c "NLS_LANG=.$CHARACTER_SET $ORACLE_HOME/bin/imp $DUMP_NAME/$DUMP_NAME file=/docker-entrypoint-initdb.d/ full=y ignore=y log=/docker-entrypoint-initdb.d/init_log.log"
 	#Disable IMPDP user
 	echo -e 'ALTER USER IMPDP ACCOUNT LOCK;\nexit;' | su oracle -c "NLS_LANG=.$CHARACTER_SET $ORACLE_HOME/bin/sqlplus -S / as sysdba"
 }
