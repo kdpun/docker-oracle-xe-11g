@@ -38,8 +38,8 @@ ALTER DATABASE DATAFILE '/u01/app/oracle/oradata/XE/${DUMP_NAME}_ts.dbf' AUTOEXT
 exit;
 EOL
 
-	su oracle -c "NLS_LANG=.$CHARACTER_SET $ORACLE_HOME/bin/sqlplus -S / as sysdba @/tmp/impdp.sql"
-	su oracle -c "NLS_LANG=.$CHARACTER_SET $ORACLE_HOME/bin/imp $DUMP_NAME/$DUMP_NAME file=/docker-entrypoint-initdb.d/ full=y ignore=y"
+	su oracle -c "NLS_LANG=.$CHARACTER_SET ${ORACLE_HOME}/bin/sqlplus -S / as sysdba @/tmp/impdp.sql"
+	su oracle -c "NLS_LANG=.$CHARACTER_SET ${ORACLE_HOME}/bin/imp $DUMP_NAME/${DUMP_NAME} file=/docker-entrypoint-initdb.d/${DUMP_FILE} buffer=64000 full=y ignore=y"
 	#Disable IMPDP user
 	# echo -e 'ALTER USER IMPDP ACCOUNT LOCK;\nexit;' | su oracle -c "NLS_LANG=.$CHARACTER_SET $ORACLE_HOME/bin/sqlplus -S / as sysdba"
 }
