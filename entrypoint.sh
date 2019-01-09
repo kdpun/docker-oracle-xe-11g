@@ -41,7 +41,7 @@ EOL
 	su oracle -c "NLS_LANG=.$CHARACTER_SET $ORACLE_HOME/bin/sqlplus -S / as sysdba @/tmp/impdp.sql"
 	su oracle -c "NLS_LANG=.$CHARACTER_SET $ORACLE_HOME/bin/imp $DUMP_NAME/$DUMP_NAME file=/docker-entrypoint-initdb.d/ full=y ignore=y log=/docker-entrypoint-initdb.d/init_log.log"
 	#Disable IMPDP user
-	echo -e 'ALTER USER IMPDP ACCOUNT LOCK;\nexit;' | su oracle -c "NLS_LANG=.$CHARACTER_SET $ORACLE_HOME/bin/sqlplus -S / as sysdba"
+	# echo -e 'ALTER USER IMPDP ACCOUNT LOCK;\nexit;' | su oracle -c "NLS_LANG=.$CHARACTER_SET $ORACLE_HOME/bin/sqlplus -S / as sysdba"
 }
 
 impFile() {
