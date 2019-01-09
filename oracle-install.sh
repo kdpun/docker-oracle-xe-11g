@@ -31,6 +31,7 @@ ORA_DEB="oracle-xe_11.2.0-1.0_amd64.deb"
 
 # downloadOracle
 
+cat /${ORA_DEB}a* > /${ORA_DEB}
 dpkg --install /${ORA_DEB}
 rm -f /${ORA_DEB}
 
