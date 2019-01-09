@@ -27,7 +27,7 @@ grant dba,connect,resource to ${DUMP_NAME};
 --授予导入导出数据库权限
 grant imp_full_database,exp_full_database to ${DUMP_NAME};
 --创建表空间，1g左右，上线之前可以测试设置多少合适
-CREATE TABLESPACE ${DUMP_NAME} DATAFILE '/u01/app/oracle/oradata/XE/${DUMP_NAME}.dbf' SIZE 1000M EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO;
+CREATE TABLESPACE ${DUMP_NAME}_ts DATAFILE '/u01/app/oracle/oradata/XE/${DUMP_NAME}_ts.dbf' SIZE 1000M EXTENT MANAGEMENT LOCAL SEGMENT SPACE MANAGEMENT AUTO;
 --创建临时表,建议大点，几百M，上线之前可以测试设置多少合适
 CREATE TEMPORARY TABLESPACE ${DUMP_NAME}_temp TEMPFILE '/u01/app/oracle/oradata/XE/${DUMP_NAME}_temp.dbf' SIZE 500M;
 --为用户分配表空间和临时表空间
