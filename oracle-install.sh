@@ -36,7 +36,7 @@ rm -f /${ORA_DEB}
 
 # 判断文件夹是否存在
 if [ ! -d "/u01/app/oracle/product/11.2.0/xe/config/scripts/" ];then
-echo "/u01/app/oracle/product/11.2.0/xe/config/scripts  not exit."
+echo "/u01/app/oracle/product/11.2.0/xe/config/scripts not exit."
 echo "/u01/app/oracle/product/11.2.0/xe/config/scripts create..."
 mkdir /u01/app/oracle/product/11.2.0/xe/config/scripts
 else
